@@ -7,6 +7,8 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.inits import glorot, zeros
 from torch_geometric.utils import add_remaining_self_loops
 
+# From: https://github.com/pyg-team/pytorch_geometric/blob/master/torch_geometric/nn/conv/general_conv.py
+
 class GeneralConvLayer(MessagePassing):
     def __init__(self, in_channels, out_channels, improved=False, cached=False, bias=True, normalize_adj=False, self_msg='concat', **kwargs):
         super().__init__(**kwargs)

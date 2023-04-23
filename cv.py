@@ -1,8 +1,8 @@
 # 10-fold Cross Validation of best trained model
 
-# Thanks to https://gist.github.com/ashleve/ac511f08c0d29e74566900fd3efbb3ec
+# From: https://gist.github.com/ashleve/ac511f08c0d29e74566900fd3efbb3ec
 
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 from sklearn.model_selection import KFold
 from graphcpp.dataset import CPPDataset
 import lightning as L
@@ -65,28 +65,31 @@ for k in range(nums_folds):
     datamodule.prepare_data()
     datamodule.setup()
 
+    # Trainer options explanation in main.py
     trainer = L.Trainer(
         accelerator="cuda",
         devices=AVAIL_GPUS,
         max_epochs=38,
         enable_progress_bar=False,
-        # deterministic=True,
         precision="16-mixed",
         num_sanity_val_steps=0
     )
 
-    # Check whether pretrained model exists. If yes, load it and skip training
+    # Create the model with the passed in arguments
     model = GraphCPPModule(**BEST_PARAMETERS)
+    # Fit the trainer
     trainer.fit(model, datamodule=datamodule)
+    # Load the best model checkpoint
     model = GraphCPPModule.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
-
+    
+    # We validate the model and get the accuracy, MCC and AUC values
     scores = trainer.validate(model, datamodule=datamodule, verbose=True)
 
+    # Append to the list of results
     results.append(scores[0])
 
 print("Finished, results:")
 print(results)
-
 
 # Results:
 # {'val_accuracy': 0.8697916865348816, 'val_mcc': 0.7395877838134766, 'val_auc': 0.9374517798423767}

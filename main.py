@@ -3,7 +3,7 @@ import torch
 from config import *
 L.seed_everything(RANDOM_SEED)
 from graphcpp.lightning import GraphCPPModule, GraphCPPDataModule
-from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint, LearningRateMonitor
+from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
 
 def run_one_training(**model_kwargs):
     print(model_kwargs)
