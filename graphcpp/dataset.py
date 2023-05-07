@@ -55,16 +55,13 @@ def featurize_smiles(
 class CPPDataset(Dataset):
     def __init__(self, root='dataset', _split='train', transform=None, pre_transform=None):
         """
-        root = Where the dataset should be stored. This folder is split into raw_dir (downloaded dataset) and processed_dir (processed data). 
+        root = Where the dataset should be stored. This folder is split into raw_dir and processed_dir (processed data). 
         """
         self.split = _split
         super(CPPDataset, self).__init__(root, transform, pre_transform)
         
     @property
     def raw_file_names(self):
-        """
-        If this file exists in raw_dir, the download is not triggered. (The download func. is not implemented here)  
-        """
         return ['train.csv', 'val.csv', 'test.csv', 'mlcpp2_independent.csv']
 
     @property

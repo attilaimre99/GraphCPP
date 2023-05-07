@@ -21,6 +21,7 @@ dependencies:
   - mlflow
   - matplotlib
   - seaborn
+  - scipy
   - pip
   - pip:
       - --find-links https://data.pyg.org/whl/torch-2.0.0+cu117.html

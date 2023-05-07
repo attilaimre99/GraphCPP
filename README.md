@@ -12,6 +12,10 @@ mamba activate graphcpp
 ```
 You can deactive the environment later with `mamba deactivate`
 
+The raw dataset is provided in the `dataset/raw` folder, it also contains the processed files zipped. If you want to skip the featurization process you can just unzip the provided zip file.
+
+The repository has been tested on CUDA 11.7.
+
 ## Repository structure
 The following folder&file structure describes the modules used in this project.
 
@@ -36,7 +40,7 @@ The following folder&file structure describes the modules used in this project.
 ```
 
 ## Prediction
-GraphCPP utilizies the [streamlit](https://streamlit.io/) python package for locally hosting a prediction webserver. You can start the prediction dashboard with the following command in the projects directory:
+GraphCPP utilizies the [streamlit](https://streamlit.io/) python package for locally hosting a web-server. You can start the prediction dashboard with the following command in the root directory of the project:
 ```
 streamlit run dashboard.py
 ```
@@ -48,7 +52,7 @@ We have utilized [arm-mango](https://github.com/ARM-software/mango) to search th
 python run hyperparameter.py
 ```
 
-To visualize the results we have used [mlflow](https://mlflow.org/docs/latest/index.html); MLflow is an open source platform for managing the end-to-end machine learning lifecycle. To see the results open mlflow in the root directory (*in another shell*):
+To track and visualize the results we have used [mlflow](https://mlflow.org/docs/latest/index.html); MLflow is an open source platform for managing the end-to-end machine learning lifecycle. To see the results open mlflow in the root directory (*in another shell*):
 ```
 mlflow ui
 ```
@@ -61,14 +65,10 @@ python run cv.py
 ```
 It defaults to 10-fold cross-validation.
 
-To visualize the results we have used [mlflow](https://mlflow.org/docs/latest/index.html); MLflow is an open source platform for managing the end-to-end machine learning lifecycle. To see the results open mlflow in the root directory (*in another shell*):
-```
-mlflow ui
-```
 ---
 
 ## Citation
-Please cite our paper (and the respective papers of the methods used) if you use this code in your own work:
+Please cite our paper if you have found our work helpful:
 ```
 TODO
 ```

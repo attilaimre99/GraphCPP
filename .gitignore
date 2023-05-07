@@ -161,6 +161,5 @@ cython_debug/
 
 lightning_logs/
 mlruns/
-dataset/
-config.py.old
-main.py.old
+dataset/processed/
+*.old
