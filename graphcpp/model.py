@@ -65,11 +65,21 @@ class MLP(torch.nn.Module):
         self.model = Sequential(*layers)
 
     def forward(self, batch):
-        if isinstance(batch, torch.Tensor):
-            batch = self.model(batch)
-        else:
-            batch.x = self.model(batch.x)
-        return batch
+        import operator
+        pre_layer = operator.attrgetter('0')
+        final_layer = operator.attrgetter('1')
+        
+        embedding = pre_layer(self.model)(batch)
+        batch = final_layer(self.model)(embedding)
+        # for name, module in self.model.named_modules():
+            # print(name)
+            # batch = module(batch)
+        # print([name for name, module in self.named_modules()])
+        # if isinstance(batch, torch.Tensor):
+        #     batch = self.model(batch)
+        # else:
+        #     batch.x = self.model(batch.x)
+        return batch, embedding
     
 class GNNStackStage(torch.nn.Module):
     def __init__(self, dim_in, dim_out, num_layers, stage_type, layer_type, **kwargs):
@@ -105,13 +115,13 @@ class GNNGraphHead(torch.nn.Module):
 
     def _apply_index(self, batch):
         return batch.graph_feature, batch.y
-
+    
     def forward(self, batch):
         graph_emb = self.pooling_fun(batch.x, batch.batch)
-        graph_emb = self.layer_post_mp(graph_emb)
+        graph_emb, inbetween_embedding = self.layer_post_mp(graph_emb)
         batch.graph_feature = graph_emb
         pred, label = self._apply_index(batch)
-        return pred, label
+        return pred, label, inbetween_embedding
 
 # GENERIC LAYERS
 
