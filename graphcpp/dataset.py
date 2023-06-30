@@ -19,6 +19,7 @@ def _featurize_mol(
     """
     featurizer = MolGraphConvFeaturizer(use_edges=True, use_chirality=True)
     featurized = featurizer.featurize(mol)[0]
+    print(featurized)
     f = GraphData(node_features=featurized.node_features, edge_index=featurized.edge_index, edge_features=featurized.edge_features)
     
     if name is None:

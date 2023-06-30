@@ -50,7 +50,14 @@ if len(fasta_strings) > 0:
     # We load it into a dataframe with the same dimensions as the smiles dataframe
     fastas = pd.DataFrame(groupped, columns=['name', 'sequence'])
     # We concert fasta -> smiles -> mol
-    fastas['mol'] = fastas['sequence'].apply(lambda x: Chem.MolFromSmiles(Chem.MolToSmiles(Chem.MolFromFASTA(x.strip()))))
+    mols = list()
+    for x in fastas['sequence']:
+        try:
+            mol = Chem.MolFromSmiles(Chem.MolToSmiles(Chem.MolFromFASTA(x.strip())))
+        except:
+             st.error(f'Peptide with sequence {x} can not be converted into SMILES. It is not added to the prediction list.')
+        mols.append(mol)
+    fastas['mol'] = mols
 
 # We combine the two dataframes and reset the index
 combined_df = pd.concat((smis, fastas))

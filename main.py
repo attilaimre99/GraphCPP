@@ -23,6 +23,7 @@ def run_one_training(**model_kwargs):
 
     # Check whether pretrained model exists. If yes, load it and skip training
     model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/epoch=38-step=7020.ckpt")
+    print(model)
 
     # Test model
     trainer.validate(model, datamodule=module, verbose=True)
