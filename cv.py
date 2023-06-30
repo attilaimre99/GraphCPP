@@ -67,8 +67,8 @@ for k in range(nums_folds):
 
     # Trainer options explanation in main.py
     trainer = L.Trainer(
-        accelerator="cuda",
-        devices=AVAIL_GPUS,
+        accelerator='cuda' if AVAIL_GPUS>0 else 'cpu',
+        devices=AVAIL_GPUS if AVAIL_GPUS>0 else 'auto',
         max_epochs=38,
         enable_progress_bar=False,
         precision="16-mixed",

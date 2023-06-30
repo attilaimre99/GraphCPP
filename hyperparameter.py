@@ -26,8 +26,8 @@ def run_one_training(**model_kwargs):
             EarlyStopping(monitor="val_mcc", mode="max", patience=10), # stop if the validation MCC value does not improve for 10 traning epochs
             ModelCheckpoint(monitor="val_mcc", mode="max")  # save the model with the highest validation MCC value
         ],
-        accelerator="cuda",
-        devices=AVAIL_GPUS,
+        accelerator='cuda' if AVAIL_GPUS>0 else 'cpu',
+        devices=AVAIL_GPUS if AVAIL_GPUS>0 else 'auto',
         min_epochs=20,
         max_epochs=100,
         enable_progress_bar=False, # don't need

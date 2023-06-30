@@ -14,8 +14,8 @@ def run_one_training(**model_kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = L.Trainer(
         callbacks=[LearningRateMonitor("epoch"), ModelCheckpoint()],
-        accelerator="cuda",
-        devices=AVAIL_GPUS,
+        accelerator='cuda' if AVAIL_GPUS>0 else 'cpu',
+        devices=AVAIL_GPUS if AVAIL_GPUS>0 else 'auto',
         max_epochs=38,
         enable_progress_bar=True,
         num_sanity_val_steps=0

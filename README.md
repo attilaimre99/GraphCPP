@@ -49,7 +49,7 @@ streamlit run dashboard.py
 ## Hyperparameter optimization
 We have utilized [arm-mango](https://github.com/ARM-software/mango) to search the vast hyperparameter space of our model. In previous iterations of the model we have determined that the GraphSAGE convolutional layer performs best for our data. To perform hyperparameter optimization run the following script:
 ```
-python run hyperparameter.py
+python hyperparameter.py
 ```
 
 To track and visualize the results we have used [mlflow](https://mlflow.org/docs/latest/index.html); MLflow is an open source platform for managing the end-to-end machine learning lifecycle. To see the results open mlflow in the root directory (*in another shell*):
@@ -61,7 +61,7 @@ mlflow ui
 ## k-fold Cross-validation
 To cross-validate the best model determined by hyperparameter optimization run the following script:
 ```
-python run cv.py
+python cv.py
 ```
 It defaults to 10-fold cross-validation.
 
