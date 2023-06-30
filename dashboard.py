@@ -5,11 +5,18 @@ import uuid
 import math
 from graphcpp.lightning import GraphCPPModule
 from graphcpp.dataset import _featurize_mol
+from config import AVAIL_GPUS
 from rdkit import Chem
 from io import StringIO
 
+# ----------- We load the model once.
+# We load in the best model from the model path
+model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/epoch=38-step=7020.ckpt", map_location=None if AVAIL_GPUS>0 else torch.device('cpu'))
+model.eval()
+
 # ----------- Default values
 submit = None
+predictions = list()
 
 # ----------- General things
 col1, mid, col2 = st.columns([1,1,15])
@@ -18,14 +25,20 @@ with col1:
 with col2:
     st.title('GraphCPP')
 st.subheader('A state-of-the-art graph neural network for the prediction of cell-penetrating peptides.')
-st.caption("Attila Imre ([github](https://github.com/attilaimre99)), Balázs Balogh PhD ([orcid](https://orcid.org/0000-0001-7282-7283)), István Mándity PhD ([orcid](https://orcid.org/0000-0003-2865-6143))")
+st.caption("[Attila Imre](https://github.com/attilaimre99) <sup>1</sup>, [Balázs Balogh PhD](https://orcid.org/0000-0001-7282-7283) <sup>1</sup>, [István Mándity PhD](https://orcid.org/0000-0003-2865-6143) <sup>1,2</sup>", unsafe_allow_html=True)
+
+st.markdown("""
+<sup>1</sup> *Department of Organic Chemistry, Faculty of Pharmacy, Semmelweis University, Hőgyes Endre St. 7, H-1092 Budapest, Hungary*\n
+<sup>2</sup> *Artificial Transporters Research Group, Research Centre for Natural Sciences, Magyar tudósok boulevard 2, H-1117 Budapest, Hungary*
+""", unsafe_allow_html=True)
+
 st.write("""
-Abstract
+Cell-penetrating peptides (CPPs) are short amino acid sequences that have the ability to penetrate cell membranes and deliver biologically relevant molecules into cells. In this study, we present the application GraphCPP, a novel graph neural network (GNN) for the prediction of penetration. As a first step in our work, a new comprehensive database was constructed by the combination of datasets from multiple previously published works, resulting in the largest reliable dataset of CPPs to date. This database includes both primary structures of peptides, in FASTA format and also the tertiary structure which encoded in isomeric simplified molecular-input line-entry system (SMILES) notation. The model was validated through 10-fold cross-validation and in comparison, with two independent test datasets. Comparative analyses with existing methods also demonstrated the superior predictive performance of our model. Upon testing against other published methods, GraphCPP performs exceptionally, achieved 0.8125 MCC and 0.9579 AUC values on one dataset. Furthermore, our model achieved 0.6641 MCC and 0.9629 AUC on another independent test dataset. This means a 2.3% and 2.4% improvement on the first while 4.3% and 3.8% improvement on the second dataset in MCC and AUC measures respectively. The model's capability to effectively learn peptide representations was also showed through generated t-SNE plots. These findings show the potential of GNN-based models to improve CPPs penetration prediction and may contribute towards the development of more efficient drug delivery systems.
 """)
 
 # ----------- Input fields
-smiles_strings = st.text_area('Prediction on SMILES in csv format. If name is not supplied a random name will be generated.', help='Enter valid SMILES strings.', placeholder='name,smiles\nfirst,CC[C@H](C)[C@H](NC(=O)[C@@H]1CCCN1C(=O)[C@H](Cc1ccc(O)cc1)NC(=O)[C@H](CCSC)NC(=O)[C@H](CS)NC(=O)[C@H](CCCCN)NC(=O)[C@@H]1CCCN1C(=O)[C@H](CC(C)C)NC(=O)[C@@H](NC(=O)[C@H](Cc1c[nH]cn1)NC(=O)[C@@H]1CCCN1C(=O)CNC(=O)[C@@H](N)CCCCN)[C@@H](C)O)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)NCC(=O)N[C@@H](CO)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@@H](CCCCN)C(=O)NCC(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc1c[nH]cn1)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@@H](Cc1c[nH]cn1)C(=O)N[C@@H](C)C(=O)N[C@@H](Cc1c[nH]c2ccccc12)C(=O)N[C@@H](Cc1ccccc1)C(=O)N1CCC[C@H]1C(=O)N1CCC[C@H]1C(=O)N[C@@H](CCC(N)=O)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)O')
-fasta_strings = st.text_area('Prediction on FASTA. If name is not supplied a random name will be generated.', help='Enter valid FASTA.', placeholder='>First\nRRRRRRRR\n>Second\nWWWWWWWW')
+smiles_strings = st.text_area('Prediction on **SMILES** in **csv** format. If name is not supplied a random name will be generated. To allow access to everyone in the research community this server is limited to 100 samples per run.', help='Enter valid SMILES strings.', placeholder='name,smiles\nfirst,CC[C@H](C)[C@H](NC(=O)[C@@H]1CCCN1C(=O)[C@H](Cc1ccc(O)cc1)NC(=O)[C@H](CCSC)NC(=O)[C@H](CS)NC(=O)[C@H](CCCCN)NC(=O)[C@@H]1CCCN1C(=O)[C@H](CC(C)C)NC(=O)[C@@H](NC(=O)[C@H](Cc1c[nH]cn1)NC(=O)[C@@H]1CCCN1C(=O)CNC(=O)[C@@H](N)CCCCN)[C@@H](C)O)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)NCC(=O)N[C@@H](CO)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@@H](CCCCN)C(=O)NCC(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc1c[nH]cn1)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@@H](Cc1c[nH]cn1)C(=O)N[C@@H](C)C(=O)N[C@@H](Cc1c[nH]c2ccccc12)C(=O)N[C@@H](Cc1ccccc1)C(=O)N1CCC[C@H]1C(=O)N1CCC[C@H]1C(=O)N[C@@H](CCC(N)=O)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)O')
+fasta_strings = st.text_area('Prediction on **FASTA**. If name is not supplied a random name will be generated. To allow access to everyone in the research community this server is limited to 100 samples per run.', help='Enter valid FASTA.', placeholder='>First\nRRRRRRRR\n>Second\nWWWWWWWW')
 
 # ----------- SMILES processing
 smis = pd.DataFrame()
@@ -55,7 +68,7 @@ if len(fasta_strings) > 0:
         try:
             mol = Chem.MolFromSmiles(Chem.MolToSmiles(Chem.MolFromFASTA(x.strip())))
         except:
-             st.error(f'Peptide with sequence {x} can not be converted into SMILES. It is not added to the prediction list.')
+            st.error(f'Peptide with sequence {x} can not be converted into SMILES. It is not added to the prediction list.')
         mols.append(mol)
     fastas['mol'] = mols
 
@@ -63,7 +76,12 @@ if len(fasta_strings) > 0:
 combined_df = pd.concat((smis, fastas))
 combined_df = combined_df.reset_index()
 
-if combined_df.size > 0:
+allowed = True
+if combined_df.shape[0] > 100:
+    allowed = False
+    st.error(f'To serve everyone in the CPP research community, we have to limit the number of peptides per run to 100. You supplied {combined_df.shape[0]} peptides.')
+
+if combined_df.size > 0 and allowed:
     st.markdown("""---""")
 
     submit = st.button("Predict")
@@ -79,11 +97,6 @@ if combined_df.size > 0:
 
         # Making the predictions
         with st.spinner(text="Fetching model prediction..."):
-            # We load in the best model from the model path
-            model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/epoch=38-step=7020.ckpt")
-            model.eval()
-            # New list to hold the predictions
-            predictions = list()
             with torch.no_grad():
                 for graph_list in graphs:
                     prediction = model(graph_list[1])[0] # The 1th index is the mol object

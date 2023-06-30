@@ -28,7 +28,7 @@ class KFoldDataModule(L.LightningDataModule):
 
     @property
     def num_node_features() -> int:
-        return 30
+        return 32
 
     @property
     def num_classes() -> int:
