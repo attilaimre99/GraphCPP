@@ -17,7 +17,7 @@ with col1:
     st.image('assets/logo.png', width=100)
 with col2:
     st.title('GraphCPP')
-st.subheader('The state-of-the-art graph neural network for the prediction of cell-penetrating peptides.')
+st.subheader('A state-of-the-art graph neural network for the prediction of cell-penetrating peptides.')
 st.caption("Made by Attila Imre ([github](https://github.com/attilaimre99)), Balázs Balogh PhD ([orcid](https://orcid.org/0000-0001-7282-7283)), István Mándity PhD ([orcid](https://orcid.org/0000-0003-2865-6143))")
 st.write("""
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum sed libero dolor. Pellentesque non tempor sem. Aliquam suscipit varius posuere. Integer condimentum a odio sit amet fermentum. Pellentesque eget dapibus tellus. Donec luctus lacinia rutrum. Praesent leo ligula, tristique non rutrum et, maximus sagittis velit. Sed eget scelerisque nisl, non malesuada lectus. Mauris in vulputate neque. Ut vitae porttitor augue. Praesent et tellus sed sem luctus tristique. Fusce lacus magna, consequat sed mattis ac, tempus vel orci. Sed et arcu non lorem ullamcorper venenatis. Integer a urna erat.

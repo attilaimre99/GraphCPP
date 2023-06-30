@@ -121,7 +121,8 @@ class GNNGraphHead(torch.nn.Module):
         graph_emb, inbetween_embedding = self.layer_post_mp(graph_emb)
         batch.graph_feature = graph_emb
         pred, label = self._apply_index(batch)
-        return pred, label, inbetween_embedding
+        # return pred, label, inbetween_embedding # for tsne
+        return pred, label
 
 # GENERIC LAYERS
 
