@@ -61,16 +61,15 @@ nums_folds = 10
 split_seed = 42
 
 for k in range(nums_folds):
-    datamodule = KFoldDataModule(data_dir='dataset', k=k, batch_size=BATCH_SIZE)
+    datamodule = KFoldDataModule(data_dir='dataset', k=k, num_splits=nums_folds, batch_size=BATCH_SIZE)
     datamodule.prepare_data()
-    datamodule.setup()
 
     # Trainer options explanation in main.py
     trainer = L.Trainer(
         accelerator='cuda' if AVAIL_GPUS>0 else 'cpu',
         devices=AVAIL_GPUS if AVAIL_GPUS>0 else 'auto',
         max_epochs=38,
-        enable_progress_bar=False,
+        enable_progress_bar=True,
         precision="16-mixed",
         num_sanity_val_steps=0
     )

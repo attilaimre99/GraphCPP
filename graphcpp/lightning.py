@@ -10,12 +10,12 @@ import torchmetrics
 
 # Load datasets
 class GraphCPPDataModule(L.LightningDataModule):
-    def __init__(self):
+    def __init__(self, folder='dataset'):
         super().__init__()
-        self.train_split = load_dataset_cpp('dataset', split='train').shuffle()
-        self.val_split = load_dataset_cpp('dataset', split='val').shuffle()
-        self.test_split = load_dataset_cpp('dataset', split='test').shuffle()
-        self.mlcpp2_independent = load_dataset_cpp('dataset', split='mlcpp2_independent').shuffle()
+        self.train_split = load_dataset_cpp(folder, split='train').shuffle()
+        self.val_split = load_dataset_cpp(folder, split='val').shuffle()
+        self.test_split = load_dataset_cpp(folder, split='test').shuffle()
+        # self.mlcpp2_independent = load_dataset_cpp(folder, split='mlcpp2_independent').shuffle()
 
     def train_dataloader(self):
         return DataLoader(self.train_split, batch_size=BATCH_SIZE, shuffle=True)
@@ -43,8 +43,8 @@ class GraphCPPModule(L.LightningModule):
         self.test_accuracy = torchmetrics.Accuracy(task='binary')
         self.test_mcc = torchmetrics.MatthewsCorrCoef(task='binary')
         self.test_auc = torchmetrics.AUROC(task='binary')
-        self.test_sensitivity = torchmetrics.Recall(task='binary')
-        self.test_specificity = torchmetrics.Specificity(task='binary')
+        self.test_precision = torchmetrics.Precision(task='binary')
+        self.test_recall = torchmetrics.Recall(task='binary')
         self.test_f1 = torchmetrics.F1Score(task='binary')
 
     def forward(self, data):
@@ -88,12 +88,12 @@ class GraphCPPModule(L.LightningModule):
         self.test_accuracy(preds, labels)
         self.test_mcc(preds, labels)
         self.test_auc(preds, labels)
-        self.test_sensitivity(preds, labels)
-        self.test_specificity(preds, labels)
+        self.test_precision(preds, labels)
+        self.test_recall(preds, labels)
         self.test_f1(preds, labels)
         self.log('test_accuracy', self.test_accuracy, batch_size=len(batch))
         self.log('test_mcc', self.test_mcc, batch_size=len(batch))
         self.log('test_auc', self.test_auc, batch_size=len(batch))
-        self.log('test_sensitivity', self.test_sensitivity, batch_size=len(batch))
-        self.log('test_specificity', self.test_specificity, batch_size=len(batch))
+        self.log('test_precision', self.test_precision, batch_size=len(batch))
+        self.log('test_recall', self.test_recall, batch_size=len(batch))
         self.log('test_f1', self.test_f1, batch_size=len(batch))

@@ -3,27 +3,32 @@ import torch
 from config import *
 L.seed_everything(RANDOM_SEED)
 from graphcpp.lightning import GraphCPPModule, GraphCPPDataModule
-from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
+from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor, EarlyStopping
 
 def run_one_training(**model_kwargs):
     print(model_kwargs)
 
     # Create datamodule
-    module = GraphCPPDataModule()
+    module = GraphCPPDataModule(folder='stratified_dataset')
 
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = L.Trainer(
-        callbacks=[LearningRateMonitor("epoch"), ModelCheckpoint()],
+        # callbacks=[LearningRateMonitor("epoch"), ModelCheckpoint(monitor="val_mcc", mode="max")],
+        # callbacks=[LearningRateMonitor("epoch"), EarlyStopping(monitor="val_mcc", mode="max", patience=10), ModelCheckpoint(monitor="val_mcc", mode="max")],
         accelerator='cuda' if AVAIL_GPUS>0 else 'cpu',
         devices=AVAIL_GPUS if AVAIL_GPUS>0 else 'auto',
-        max_epochs=38,
+        max_epochs=200,
         enable_progress_bar=True,
         num_sanity_val_steps=0
     )
 
     # Check whether pretrained model exists. If yes, load it and skip training
-    model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/epoch=38-step=7020.ckpt")
-    print(model)
+    # if os.path.isfile("model/epoch=38-step=7020.ckpt"):
+    model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/trained_on_stratified.ckpt")
+    # else:
+    # model = GraphCPPModule(**model_kwargs)
+    # trainer.fit(model, datamodule=module)
+    # model = GraphCPPModule.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test model
     trainer.validate(model, datamodule=module, verbose=True)
