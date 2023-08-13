@@ -7,8 +7,10 @@ from torch_geometric.data import Dataset, Data
 from tqdm import tqdm
 import numpy as np 
 import os
+from torchvision.datasets.utils import download_and_extract_archive
 from deepchem.feat import MolGraphConvFeaturizer, GraphData
-from rdkit import Chem 
+from graphcpp.fp_generators import fp_dict
+from rdkit import Chem
 
 def _featurize_mol(
         mol : Chem.rdchem.Mol,
@@ -19,7 +21,6 @@ def _featurize_mol(
     """
     featurizer = MolGraphConvFeaturizer(use_edges=True, use_chirality=True)
     featurized = featurizer.featurize(mol)[0]
-    print(featurized)
     f = GraphData(node_features=featurized.node_features, edge_index=featurized.edge_index, edge_features=featurized.edge_features)
     
     if name is None:
@@ -51,15 +52,16 @@ def featurize_smiles(
     mol = Chem.MolFromSmiles(smiles)
     return _featurize_mol(mol, name)
     
-    
 
 class CPPDataset(Dataset):
-    def __init__(self, root='dataset', _split='train', transform=None, pre_transform=None):
+    def __init__(self, root='dataset', _split='train', fp_type=None, download=True):
         """
         root = Where the dataset should be stored. This folder is split into raw_dir and processed_dir (processed data). 
         """
         self.split = _split
-        super(CPPDataset, self).__init__(root, transform, pre_transform)
+        self.fp_type = fp_type
+        self.should_download = download
+        super(CPPDataset, self).__init__(root)
         
     @property
     def raw_file_names(self):
@@ -73,7 +75,9 @@ class CPPDataset(Dataset):
         return [f'{self.split}_{i}.pt' for i in list(self.data.index)]
 
     def download(self):
-        pass    
+        if self.should_download:
+            download_and_extract_archive('https://github.com/attilaimre99/CPPData/raw/main/raw.zip', self.root)
+            download_and_extract_archive('https://github.com/attilaimre99/CPPData/raw/main/processed.zip', self.root)
 
     def process(self):
         self.data = pd.read_csv("{}/{}.csv".format(self.raw_dir, self.split)).reset_index()
@@ -95,10 +99,11 @@ class CPPDataset(Dataset):
 
     def get(self, idx):
         data = torch.load(os.path.join(self.processed_dir, f'{self.split}_{idx}.pt'))
+        
+        # Load fingerprint
+        if self.fp_type is not None:
+            mol = Chem.MolFromSmiles(data.smiles)
+            fp = fp_dict[self.fp_type].GetFingerprint(mol)
+            data.fp = torch.tensor([fp], dtype=torch.float32)
+
         return data
-
-def load_dataset_cpp(dataset_dir, split='train'):
-    return CPPDataset(root=dataset_dir, _split=split)
-
-    
-

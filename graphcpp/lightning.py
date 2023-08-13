@@ -1,21 +1,20 @@
 import torch
 from torch_geometric.loader import DataLoader
-from graphcpp.dataset import load_dataset_cpp
+from torch_geometric.data import Batch
+from graphcpp.dataset import CPPDataset
 from graphcpp.model import GCN
 import lightning as L
 from config import *
-
-
 import torchmetrics
 
 # Load datasets
 class GraphCPPDataModule(L.LightningDataModule):
-    def __init__(self, folder='dataset'):
+    def __init__(self, folder='dataset', **kwargs):
         super().__init__()
-        self.train_split = load_dataset_cpp(folder, split='train').shuffle()
-        self.val_split = load_dataset_cpp(folder, split='val').shuffle()
-        self.test_split = load_dataset_cpp(folder, split='test').shuffle()
-        # self.mlcpp2_independent = load_dataset_cpp(folder, split='mlcpp2_independent').shuffle()
+        self.train_split = CPPDataset(root=folder, _split='train', fp_type=kwargs['fp_type']).shuffle()
+        self.val_split = CPPDataset(root=folder, _split='val', fp_type=kwargs['fp_type']).shuffle()
+        self.test_split = CPPDataset(root=folder, _split='test', fp_type=kwargs['fp_type']).shuffle()
+        # self.mlcpp2_independent = CPPDataset(root=folder, _split='mlcpp2_independent', fp_type=kwargs['fp_type']).shuffle()
 
     def train_dataloader(self):
         return DataLoader(self.train_split, batch_size=BATCH_SIZE, shuffle=True)

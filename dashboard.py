@@ -11,8 +11,9 @@ from io import StringIO
 
 # ----------- We load the model once.
 # We load in the best model from the model path
-model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/epoch=38-step=7020.ckpt", map_location=None if AVAIL_GPUS>0 else torch.device('cpu'))
+model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/new_stratified.ckpt", map_location=None if AVAIL_GPUS>0 else torch.device('cpu'))
 model.eval()
+model.freeze()
 
 # ----------- Default values
 submit = None
@@ -44,11 +45,11 @@ fasta_strings = st.text_area('Prediction on **FASTA**. If name is not supplied a
 smis = pd.DataFrame()
 if len(smiles_strings) > 0:
     # we read in the text as it was a csv file without header
-    smis = pd.read_csv(StringIO(smiles_strings), header=None, names=['name', 'sequence'])
+    smis = pd.read_csv(StringIO(smiles_strings))
     # we generate uuid4 names for empty name fields
     smis['name'] = smis['name'].apply(lambda x: str(uuid.uuid4()) if not isinstance(x, str) and math.isnan(x) else x)
     # we generate mol from smiles string. we also strip any endline characters and spaces
-    smis['mol'] = smis['sequence'].apply(lambda x: Chem.MolFromSmiles(x.strip()))
+    smis['mol'] = smis['smiles'].apply(lambda x: Chem.MolFromSmiles(x.strip()))
 
 fastas = pd.DataFrame()
 if len(fasta_strings) > 0:
@@ -66,7 +67,7 @@ if len(fasta_strings) > 0:
     mols = list()
     for x in fastas['sequence']:
         try:
-            mol = Chem.MolFromSmiles(Chem.MolToSmiles(Chem.MolFromFASTA(x.strip())))
+            mol = Chem.MolFromFASTA(x.strip())
         except:
             st.error(f'Peptide with sequence {x} can not be converted into SMILES. It is not added to the prediction list.')
         mols.append(mol)
@@ -77,9 +78,9 @@ combined_df = pd.concat((smis, fastas))
 combined_df = combined_df.reset_index()
 
 allowed = True
-if combined_df.shape[0] > 100:
-    allowed = False
-    st.error(f'To serve everyone in the CPP research community, we have to limit the number of peptides per run to 100. You supplied {combined_df.shape[0]} peptides.')
+# if combined_df.shape[0] > 100:
+#     allowed = False
+#     st.error(f'To serve everyone in the CPP research community, we have to limit the number of peptides per run to 100. You supplied {combined_df.shape[0]} peptides.')
 
 if combined_df.size > 0 and allowed:
     st.markdown("""---""")

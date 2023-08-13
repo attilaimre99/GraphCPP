@@ -61,7 +61,7 @@ nums_folds = 10
 split_seed = 42
 
 for k in range(nums_folds):
-    datamodule = KFoldDataModule(data_dir='dataset', k=k, num_splits=nums_folds, batch_size=BATCH_SIZE)
+    datamodule = KFoldDataModule(data_dir='dataset', k=k, num_splits=5, batch_size=128)
     datamodule.prepare_data()
 
     # Trainer options explanation in main.py

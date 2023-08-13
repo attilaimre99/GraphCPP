@@ -3,21 +3,23 @@ import torch.nn.functional as F
 from torch.nn import Sequential, BatchNorm1d
 import torch_geometric as pyg
 from graphcpp.generalconv import GeneralConvLayer, GeneralEdgeConvLayer as GraphGymEdgeConvLayer
+import numpy as np
 
 from graphcpp.act import act_dict
 from graphcpp.pooling import pooling_dict
 from graphcpp.utils import init_weights
+from config import BATCH_SIZE
 
 # General classes
 class GeneralLayer(torch.nn.Module):
     '''General wrapper for layers'''
     def __init__(self, name, dim_in, dim_out, has_act=True, dropout=0.0, act='relu', **kwargs):
         super(GeneralLayer, self).__init__()
-        self.has_l2norm = kwargs['has_l2norm']
+        self.has_l2norm = kwargs.get('has_l2norm', False)
         self.dropout = dropout
-        self.layer = layer_dict[name](dim_in, dim_out, bias=not kwargs['has_bn'], **kwargs)
+        self.layer = layer_dict[name](dim_in, dim_out, bias=not kwargs.get('has_bn', False), **kwargs)
         layer_wrapper = []
-        if kwargs['has_bn']:
+        if kwargs.get('has_bn', False):
             layer_wrapper.append(BatchNorm1d(dim_out))
         if dropout > 0:
             layer_wrapper.append(torch.nn.Dropout(p=dropout))
@@ -65,21 +67,18 @@ class MLP(torch.nn.Module):
         self.model = Sequential(*layers)
 
     def forward(self, batch):
-        import operator
-        pre_layer = operator.attrgetter('0')
-        final_layer = operator.attrgetter('1')
+        # import operator
+        # pre_layer = operator.attrgetter('0')
+        # final_layer = operator.attrgetter('1')
         
-        embedding = pre_layer(self.model)(batch)
-        batch = final_layer(self.model)(embedding)
-        # for name, module in self.model.named_modules():
-            # print(name)
-            # batch = module(batch)
-        # print([name for name, module in self.named_modules()])
-        # if isinstance(batch, torch.Tensor):
-        #     batch = self.model(batch)
-        # else:
-        #     batch.x = self.model(batch.x)
-        return batch, embedding
+        # embedding = pre_layer(self.model)(batch)
+        # batch = final_layer(self.model)(embedding)
+        if isinstance(batch, torch.Tensor):
+            batch = self.model(batch)
+        else:
+            batch.x = self.model(batch.x)
+        # return batch, embedding
+        return batch
     
 class GNNStackStage(torch.nn.Module):
     def __init__(self, dim_in, dim_out, num_layers, stage_type, layer_type, **kwargs):
@@ -110,18 +109,25 @@ class GNNStackStage(torch.nn.Module):
 class GNNGraphHead(torch.nn.Module):
     def __init__(self, dim_in, dim_out, num_layers, pooling='add', **kwargs):
         super(GNNGraphHead, self).__init__()
+        self.layer_fingerprints = kwargs.get('layer_fingerprints')
         self.pooling_fun = pooling_dict[pooling]
-        self.layer_post_mp = MLP(dim_in=dim_in, dim_out=dim_out, num_layers=num_layers, bias=True, **kwargs)
+        self.layer_post_mp = MLP(dim_in=dim_in*(2 if self.layer_fingerprints > 0 else 1), dim_out=dim_out, num_layers=num_layers, bias=True, **kwargs) # Times two because of concat of fp and graph embedding
 
-    def _apply_index(self, batch):
-        return batch.graph_feature, batch.y
-    
+        if self.layer_fingerprints > 0:
+            self.fingerprint = MLP(dim_in=2048, dim_out=dim_in, num_layers=self.layer_fingerprints, bias=True) # 2048 because Morgan fingerprints
+
     def forward(self, batch):
         graph_emb = self.pooling_fun(batch.x, batch.batch)
-        graph_emb, inbetween_embedding = self.layer_post_mp(graph_emb)
-        batch.graph_feature = graph_emb
-        pred, label = self._apply_index(batch)
-        # return pred, label, inbetween_embedding # for tsne
+
+        if self.layer_fingerprints > 0:
+            # Fingerprint concat
+            fp = self.fingerprint(batch.fp)
+            graph_emb = torch.cat([graph_emb, fp], dim=1)
+
+        # graph_emb, inbetween_embedding = self.layer_post_mp(graph_emb)
+        graph_emb = self.layer_post_mp(graph_emb)
+        pred, label = graph_emb, batch.y
+        # return pred, label, inbetween_embedding for tsne
         return pred, label
 
 # GENERIC LAYERS
