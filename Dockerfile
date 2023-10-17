@@ -7,8 +7,8 @@ RUN micromamba install -y -n base -f /tmp/cpu.yml && \
 
 ARG MAMBA_DOCKERFILE_ACTIVATE=1  # (otherwise python will not be found)
 
-EXPOSE 8501
+EXPOSE 80
 
-HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
+HEALTHCHECK CMD curl --fail http://localhost:80/_stcore/health
 
-ENTRYPOINT ["streamlit", "run", "dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "streamlit", "run", "dashboard.py", "--server.port=80", "--server.address=0.0.0.0"]
