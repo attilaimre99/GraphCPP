@@ -11,4 +11,4 @@ EXPOSE 80
 
 HEALTHCHECK CMD curl --fail http://localhost:80/_stcore/health
 
-ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "streamlit", "run", "dashboard.py", "--server.port=80", "--server.address=0.0.0.0"]
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "streamlit", "run", "dashboard.py", "--server.port=80", "--server.address=0.0.0.0", "--global.developmentMode=False"]
