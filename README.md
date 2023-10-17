@@ -55,7 +55,7 @@ To cross-validate the best model determined by hyperparameter optimization run t
 ```
 python cv.py
 ```
-It defaults to 5-fold cross-validation.
+It defaults to 10-fold cross-validation.
 
 ---
 
