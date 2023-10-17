@@ -25,10 +25,10 @@ def run_one_training(**model_kwargs):
         devices=AVAIL_GPUS if AVAIL_GPUS>0 else 'auto',
         min_epochs=20,
         max_epochs=200,
-        enable_progress_bar=False, # don't need
+        # enable_progress_bar=True, # don't need
         precision="16-mixed", # for faster training, we don't loose much precision ref: https://lightning.ai/docs/pytorch/latest/common/precision_intermediate.html
         num_sanity_val_steps=0, # don't need
-        log_every_n_steps=5
+        # log_every_n_steps=5
     )
 
     # Create the model with the passed in arguments

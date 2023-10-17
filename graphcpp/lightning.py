@@ -2,6 +2,7 @@ import torch
 from torch_geometric.loader import DataLoader
 from torch_geometric.data import Batch
 from graphcpp.dataset import CPPDataset
+# from graphcpp.model_for_tsne import GCN
 from graphcpp.model import GCN
 import lightning as L
 from config import *
@@ -14,7 +15,7 @@ class GraphCPPDataModule(L.LightningDataModule):
         self.train_split = CPPDataset(root=folder, _split='train', fp_type=kwargs['fp_type']).shuffle()
         self.val_split = CPPDataset(root=folder, _split='val', fp_type=kwargs['fp_type']).shuffle()
         self.test_split = CPPDataset(root=folder, _split='test', fp_type=kwargs['fp_type']).shuffle()
-        # self.mlcpp2_independent = CPPDataset(root=folder, _split='mlcpp2_independent', fp_type=kwargs['fp_type']).shuffle()
+        self.mlcpp2_independent = CPPDataset(root=folder, _split='mlcpp2_independent', fp_type=kwargs['fp_type']).shuffle()
 
     def train_dataloader(self):
         return DataLoader(self.train_split, batch_size=BATCH_SIZE, shuffle=True)
@@ -24,6 +25,7 @@ class GraphCPPDataModule(L.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.test_split, batch_size=BATCH_SIZE)
+        # return DataLoader(self.mlcpp2_independent, batch_size=BATCH_SIZE)
 
 class GraphCPPModule(L.LightningModule):
     def __init__(self, learning_rate=0.001, weight_decay=0.0005, **model_kwargs):

@@ -1,6 +1,6 @@
-# 10-fold Cross Validation of best trained model
+# 5-fold Cross Validation of best trained model
 
-# From: https://gist.github.com/ashleve/ac511f08c0d29e74566900fd3efbb3ec
+# Based on: https://gist.github.com/ashleve/ac511f08c0d29e74566900fd3efbb3ec
 
 from torch_geometric.loader import DataLoader
 from sklearn.model_selection import KFold
@@ -36,7 +36,7 @@ class KFoldDataModule(L.LightningDataModule):
 
     def setup(self, stage=None):
         if not self.data_train and not self.data_val:
-            dataset_full = CPPDataset(self.hparams.data_dir) # split train
+            dataset_full = CPPDataset(self.hparams.data_dir, fp_type='topological') # split train
 
             # choose fold to train on
             kf = KFold(n_splits=self.hparams.num_splits, shuffle=True, random_state=self.hparams.split_seed)
@@ -57,7 +57,7 @@ from config import *
 from graphcpp.lightning import GraphCPPModule
 
 results = []
-nums_folds = 10
+nums_folds = 5
 split_seed = 42
 
 for k in range(nums_folds):
@@ -68,9 +68,9 @@ for k in range(nums_folds):
     trainer = L.Trainer(
         accelerator='cuda' if AVAIL_GPUS>0 else 'cpu',
         devices=AVAIL_GPUS if AVAIL_GPUS>0 else 'auto',
-        max_epochs=38,
+        max_epochs=50,
         enable_progress_bar=True,
-        precision="16-mixed",
+        # precision="16-mixed",
         num_sanity_val_steps=0
     )
 

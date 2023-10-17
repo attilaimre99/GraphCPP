@@ -1,0 +1,16 @@
+learning_rate: 0.001
+weight_decay: 0.0005
+act: prelu
+conv_aggr: softmax
+conv_dropout: 0.0
+has_bn: true
+has_l2norm: false
+layer_fingerprints: 2
+fingerprint_type: topological
+hidden_channels: 256
+layer_type: sageconv
+layers_pre_mp: 1
+mp_layers: 2
+layers_post_mp: 3
+pooling: mean
+stage_type: stack

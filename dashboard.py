@@ -5,13 +5,17 @@ import uuid
 import math
 from graphcpp.lightning import GraphCPPModule
 from graphcpp.dataset import _featurize_mol
+from graphcpp.fp_generators import fp_dict
 from config import AVAIL_GPUS
 from rdkit import Chem
 from io import StringIO
+import yaml
 
 # ----------- We load the model once.
 # We load in the best model from the model path
-model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/new_stratified.ckpt", map_location=None if AVAIL_GPUS>0 else torch.device('cpu'))
+with open('model/hparams.yaml', 'r') as f:
+    hparams = yaml.safe_load(f)
+model = GraphCPPModule.load_from_checkpoint(checkpoint_path="model/checkpoints/epoch=50-step=1173.ckpt", map_location=None if AVAIL_GPUS>0 else torch.device('cpu'))
 model.eval()
 model.freeze()
 
@@ -20,21 +24,17 @@ submit = None
 predictions = list()
 
 # ----------- General things
-col1, mid, col2 = st.columns([1,1,15])
-with col1:
-    st.image('assets/logo.png', width=100)
-with col2:
-    st.title('GraphCPP')
-st.subheader('A state-of-the-art graph neural network for the prediction of cell-penetrating peptides.')
-st.caption("[Attila Imre](https://github.com/attilaimre99) <sup>1</sup>, [Balázs Balogh PhD](https://orcid.org/0000-0001-7282-7283) <sup>1</sup>, [István Mándity PhD](https://orcid.org/0000-0003-2865-6143) <sup>1,2</sup>", unsafe_allow_html=True)
+st.header('GraphCPP: the new state-of-the-art method for cell-penetrating peptide prediction via graph neural networks')
+st.caption("[Attila Imre](https://orcid.org/0009-0004-0110-8395) <sup>1,2</sup>, [Balázs Balogh PhD](https://orcid.org/0000-0001-7282-7283) <sup>1</sup>, [István Mándity PhD](https://orcid.org/0000-0003-2865-6143) <sup>1,3</sup>", unsafe_allow_html=True)
 
 st.markdown("""
-<sup>1</sup> *Department of Organic Chemistry, Faculty of Pharmacy, Semmelweis University, Hőgyes Endre St. 7, H-1092 Budapest, Hungary*\n
-<sup>2</sup> *Artificial Transporters Research Group, Research Centre for Natural Sciences, Magyar tudósok boulevard 2, H-1117 Budapest, Hungary*
+<sup>1</sup> *Department of Organic Chemistry, Faculty of Pharmacy, Semmelweis University, Budapest, Hungary*\n
+<sup>2</sup> *Center for Health Technology Assessment, Semmelweis University, Budapest, Hungary*\n
+<sup>3</sup> *Artificial Transporters Research Group, Research Centre for Natural Sciences, Magyar tudósok Boulevard 2, H-1117 Budapest, Hungary*
 """, unsafe_allow_html=True)
 
 st.write("""
-Cell-penetrating peptides (CPPs) are short amino acid sequences that have the ability to penetrate cell membranes and deliver biologically relevant molecules into cells. In this study, we present the application GraphCPP, a novel graph neural network (GNN) for the prediction of penetration. As a first step in our work, a new comprehensive database was constructed by the combination of datasets from multiple previously published works, resulting in the largest reliable dataset of CPPs to date. This database includes both primary structures of peptides, in FASTA format and also the tertiary structure which encoded in isomeric simplified molecular-input line-entry system (SMILES) notation. The model was validated through 10-fold cross-validation and in comparison, with two independent test datasets. Comparative analyses with existing methods also demonstrated the superior predictive performance of our model. Upon testing against other published methods, GraphCPP performs exceptionally, achieved 0.8125 MCC and 0.9579 AUC values on one dataset. Furthermore, our model achieved 0.6641 MCC and 0.9629 AUC on another independent test dataset. This means a 2.3% and 2.4% improvement on the first while 4.3% and 3.8% improvement on the second dataset in MCC and AUC measures respectively. The model's capability to effectively learn peptide representations was also showed through generated t-SNE plots. These findings show the potential of GNN-based models to improve CPPs penetration prediction and may contribute towards the development of more efficient drug delivery systems.
+Cell-penetrating peptides (CPPs) are short amino acid sequences that can penetrate cell membranes and deliver biologically relevant molecules into cells.  In this study, we present the application GraphCPP, a novel graph neural network (GNN) for the prediction of membrane penetration capability of peptides . A new comprehensive dataset  - dubbed CPP7190 - was constructed  resulting in the largest reliable database of CPPs to date   . Comparative analyses with previous state-of-the-art methods, such as MLCPP2, C2Pred, BChemRF-CPPred and SkipCPP-Pred  demonstrated the superior predictive performance of our model. Upon testing against other published methods, GraphCPP performs exceptionally, achieving 0.7964 Matthews Correlation Coefficient (MCC) and 0.9538 area under the curve (AUC) values on one dataset. Furthermore, our model achieved 0.7494 MCC and 0.9799 AUC values on another independent test dataset. This means a 27.7% and 9.8% improvement on the first, while 19.1% and 5.6% improvement on the second dataset in MCC and AUC measures respectively . The capability of the model to effectively learn peptide representations was also showed through t-distributed stochastic neighbor embedding plots. These findings indicate the potential of GNN-based models to improve CPP penetration prediction and it may contribute towards the development of more efficient drug delivery systems. Our model is freely available for researchers to use at https://graphcpp.orgchem.semmelweis.hu/. 
 """)
 
 # ----------- Input fields
@@ -78,9 +78,9 @@ combined_df = pd.concat((smis, fastas))
 combined_df = combined_df.reset_index()
 
 allowed = True
-# if combined_df.shape[0] > 100:
-#     allowed = False
-#     st.error(f'To serve everyone in the CPP research community, we have to limit the number of peptides per run to 100. You supplied {combined_df.shape[0]} peptides.')
+if combined_df.shape[0] > 100:
+    allowed = False
+    st.error(f'To serve everyone in the CPP research community, we have to limit the number of peptides per run to 100. You supplied {combined_df.shape[0]} peptides.')
 
 if combined_df.size > 0 and allowed:
     st.markdown("""---""")
@@ -92,7 +92,11 @@ if combined_df.size > 0 and allowed:
         graphs = list()
         for index, row in combined_df.iterrows():
             if row['mol'] is not None:
-                graphs.append((row['name'], _featurize_mol(row['mol'])))
+                data = _featurize_mol(row['mol'])
+                if hparams['fingerprint_type'] is not None:
+                    fp = fp_dict[hparams['fingerprint_type']].GetFingerprint(row['mol'])
+                    data.fp = torch.tensor([fp], dtype=torch.float32)
+                graphs.append((row['name'], data))
             feature_progressbar.progress(index/len(combined_df), text=f"Featurizing {row['name']}.")
         feature_progressbar.empty()
 

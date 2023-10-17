@@ -52,18 +52,12 @@ We have utilized [arm-mango](https://github.com/ARM-software/mango) to search th
 python hyperparameter.py
 ```
 
-To track and visualize the results we have used [mlflow](https://mlflow.org/docs/latest/index.html); MLflow is an open source platform for managing the end-to-end machine learning lifecycle. To see the results open mlflow in the root directory (*in another shell*):
-```
-mlflow ui
-```
----
-
 ## k-fold Cross-validation
 To cross-validate the best model determined by hyperparameter optimization run the following script:
 ```
 python cv.py
 ```
-It defaults to 10-fold cross-validation.
+It defaults to 5-fold cross-validation.
 
 ---
 
@@ -71,4 +65,78 @@ It defaults to 10-fold cross-validation.
 Please cite our paper if you have found our work helpful:
 ```
 TODO
+```
+
+## Model
+```python
+(model): GCN(
+(pre_mp): GeneralMultiLayer(
+    (Layer_0): GeneralLayer(
+    (layer): Linear(
+        (model): Linear(in_features=32, out_features=256, bias=False)
+    )
+    (post_layer): Sequential(
+        (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (1): ReLU()
+    )
+    )
+    (Layer_1): GeneralLayer(
+    (layer): Linear(
+        (model): Linear(in_features=256, out_features=256, bias=False)
+    )
+    (post_layer): Sequential(
+        (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (1): ReLU()
+    )
+    )
+    (Layer_2): GeneralLayer(
+    (layer): Linear(
+        (model): Linear(in_features=256, out_features=256, bias=False)
+    )
+    (post_layer): Sequential(
+        (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (1): ReLU()
+    )
+    )
+)
+(mp): GNNStackStage(
+    (layer0): GeneralLayer(
+    (layer): SAGEConv(
+        (model): SAGEConv(256, 256, aggr=max)
+    )
+    (post_layer): Sequential(
+        (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (1): ReLU()
+    )
+    )
+)
+(post_mp): GNNGraphHead(
+    (layer_post_mp): MLP(
+    (model): Sequential(
+        (0): GeneralMultiLayer(
+            (Layer_0): GeneralLayer(
+                (layer): Linear(
+                (model): Linear(in_features=256, out_features=256, bias=False)
+                )
+                (post_layer): Sequential(
+                (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (1): ReLU()
+                )
+            )
+            (Layer_1): GeneralLayer(
+                (layer): Linear(
+                (model): Linear(in_features=256, out_features=256, bias=False)
+                )
+                (post_layer): Sequential(
+                (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (1): ReLU()
+                )
+            )
+        )
+        (1): Linear(
+            (model): Linear(in_features=256, out_features=1, bias=True)
+        )
+    )
+    )
+)
 ```
