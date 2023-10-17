@@ -163,3 +163,4 @@ lightning_logs/
 mlruns/
 dataset/processed/
 *.old
+*.zip
