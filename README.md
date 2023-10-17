@@ -12,8 +12,6 @@ mamba activate graphcpp
 ```
 You can deactive the environment later with `mamba deactivate`
 
-The raw dataset is provided in the `dataset/raw` folder, it also contains the processed files zipped. If you want to skip the featurization process you can just unzip the provided zip file.
-
 The repository has been tested on CUDA 11.7.
 
 ## Repository structure
