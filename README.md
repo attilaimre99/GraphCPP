@@ -1,8 +1,5 @@
 # GraphCPP: A state-of-the-art graph convolutional neural network for cell-penetrating peptides
 
-## Abstract
-**TODO**
-
 ## Installation
 We recommend installing GraphCPP with [mambaforge](https://mamba.readthedocs.io/en/latest/installation.html). Mamba is a fast, robust, and cross-platform package manager. Mambaforge is a Python-based CLI conceived as a drop-in replacement for conda, offering higher speed and more reliable environment solutions.
 
@@ -58,12 +55,6 @@ python cv.py
 It defaults to 10-fold cross-validation.
 
 ---
-
-## Citation
-Please cite our paper if you have found our work helpful:
-```
-TODO
-```
 
 ## Model
 ```python
