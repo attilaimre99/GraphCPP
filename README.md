@@ -1,4 +1,4 @@
-# GraphCPP: A state-of-the-art graph convolutional neural network for cell-penetrating peptides
+# GraphCPP: The new state-of-the-art method for cell-penetrating peptide prediction via graph neural networks
 
 ## Installation
 We recommend installing GraphCPP with [mambaforge](https://mamba.readthedocs.io/en/latest/installation.html). Mamba is a fast, robust, and cross-platform package manager. Mambaforge is a Python-based CLI conceived as a drop-in replacement for conda, offering higher speed and more reliable environment solutions.
@@ -56,76 +56,17 @@ It defaults to 10-fold cross-validation.
 
 ---
 
-## Model
-```python
-(model): GCN(
-(pre_mp): GeneralMultiLayer(
-    (Layer_0): GeneralLayer(
-    (layer): Linear(
-        (model): Linear(in_features=32, out_features=256, bias=False)
-    )
-    (post_layer): Sequential(
-        (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (1): ReLU()
-    )
-    )
-    (Layer_1): GeneralLayer(
-    (layer): Linear(
-        (model): Linear(in_features=256, out_features=256, bias=False)
-    )
-    (post_layer): Sequential(
-        (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (1): ReLU()
-    )
-    )
-    (Layer_2): GeneralLayer(
-    (layer): Linear(
-        (model): Linear(in_features=256, out_features=256, bias=False)
-    )
-    (post_layer): Sequential(
-        (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (1): ReLU()
-    )
-    )
-)
-(mp): GNNStackStage(
-    (layer0): GeneralLayer(
-    (layer): SAGEConv(
-        (model): SAGEConv(256, 256, aggr=max)
-    )
-    (post_layer): Sequential(
-        (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (1): ReLU()
-    )
-    )
-)
-(post_mp): GNNGraphHead(
-    (layer_post_mp): MLP(
-    (model): Sequential(
-        (0): GeneralMultiLayer(
-            (Layer_0): GeneralLayer(
-                (layer): Linear(
-                (model): Linear(in_features=256, out_features=256, bias=False)
-                )
-                (post_layer): Sequential(
-                (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-                (1): ReLU()
-                )
-            )
-            (Layer_1): GeneralLayer(
-                (layer): Linear(
-                (model): Linear(in_features=256, out_features=256, bias=False)
-                )
-                (post_layer): Sequential(
-                (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-                (1): ReLU()
-                )
-            )
-        )
-        (1): Linear(
-            (model): Linear(in_features=256, out_features=1, bias=True)
-        )
-    )
-    )
-)
+## Cite
+
+If you use GraphCPP in your research, please cite the following paper:
+
+```bibtex
+@article{Imre2024,
+  author       = {Attila Imre and Balázs Balogh and István Mándity},
+  title        = {GraphCPP: The new state-of-the-art method for cell-penetrating peptide prediction via graph neural networks},
+  journal      = {British Journal of Pharmacology},
+  year         = {2024},
+  pages        = {1-15},
+  doi          = {10.1111/bph.17388},
+}
 ```

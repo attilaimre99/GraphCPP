@@ -24,18 +24,15 @@ submit = None
 predictions = list()
 
 # ----------- General things
-st.header('GraphCPP: the new state-of-the-art method for cell-penetrating peptide prediction via graph neural networks')
-st.caption("[Attila Imre](https://orcid.org/0009-0004-0110-8395) <sup>1,2</sup>, [Balázs Balogh PhD](https://orcid.org/0000-0001-7282-7283) <sup>1</sup>, [István Mándity PhD](https://orcid.org/0000-0003-2865-6143) <sup>1,3</sup>", unsafe_allow_html=True)
+st.header('GraphCPP: The new state-of-the-art method for cellpenetrating peptide prediction via graph neural networks')
+st.caption("[Attila Imre](https://orcid.org/0009-0004-0110-8395) <sup>1,2,3</sup>, [Balázs Balogh PhD](https://orcid.org/0000-0001-7282-7283) <sup>1,3</sup>, [István Mándity PhD](https://orcid.org/0000-0003-2865-6143) <sup>1,3,4</sup>", unsafe_allow_html=True)
 
 st.markdown("""
 <sup>1</sup> *Department of Organic Chemistry, Faculty of Pharmacy, Semmelweis University, Budapest, Hungary*\n
 <sup>2</sup> *Center for Health Technology Assessment, Semmelweis University, Budapest, Hungary*\n
-<sup>3</sup> *Artificial Transporters Research Group, Research Centre for Natural Sciences, Magyar tudósok Boulevard 2, H-1117 Budapest, Hungary*
+<sup>3</sup> *Center for Pharmacology and Drug Research & Development, Semmelweis University, Budapest, Hungary*
+<sup>4</sup> *Artificial Transporters Research Group, Research Centre for Natural Sciences, Budapest, Hungary*
 """, unsafe_allow_html=True)
-
-st.write("""
-Cell-penetrating peptides (CPPs) are short amino acid sequences that can penetrate cell membranes and deliver biologically relevant molecules into cells.  In this study, we present the application GraphCPP, a novel graph neural network (GNN) for the prediction of membrane penetration capability of peptides . A new comprehensive dataset  - dubbed CPP7190 - was constructed  resulting in the largest reliable database of CPPs to date   . Comparative analyses with previous state-of-the-art methods, such as MLCPP2, C2Pred, BChemRF-CPPred and SkipCPP-Pred  demonstrated the superior predictive performance of our model. Upon testing against other published methods, GraphCPP performs exceptionally, achieving 0.7964 Matthews Correlation Coefficient (MCC) and 0.9538 area under the curve (AUC) values on one dataset. Furthermore, our model achieved 0.7494 MCC and 0.9799 AUC values on another independent test dataset. This means a 27.7% and 9.8% improvement on the first, while 19.1% and 5.6% improvement on the second dataset in MCC and AUC measures respectively . The capability of the model to effectively learn peptide representations was also showed through t-distributed stochastic neighbor embedding plots. These findings indicate the potential of GNN-based models to improve CPP penetration prediction and it may contribute towards the development of more efficient drug delivery systems. Our model is freely available for researchers to use at https://graphcpp.orgchem.semmelweis.hu/. 
-""")
 
 # ----------- Input fields
 smiles_strings = st.text_area('Prediction on **SMILES** in **csv** format. If name is not supplied a random name will be generated. To allow access to everyone in the research community this server is limited to 100 samples per run.', help='Enter valid SMILES strings.', placeholder='name,smiles\nfirst,CC[C@H](C)[C@H](NC(=O)[C@@H]1CCCN1C(=O)[C@H](Cc1ccc(O)cc1)NC(=O)[C@H](CCSC)NC(=O)[C@H](CS)NC(=O)[C@H](CCCCN)NC(=O)[C@@H]1CCCN1C(=O)[C@H](CC(C)C)NC(=O)[C@@H](NC(=O)[C@H](Cc1c[nH]cn1)NC(=O)[C@@H]1CCCN1C(=O)CNC(=O)[C@@H](N)CCCCN)[C@@H](C)O)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)NCC(=O)N[C@@H](CO)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@@H](CCCCN)C(=O)NCC(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc1c[nH]cn1)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@@H](Cc1c[nH]cn1)C(=O)N[C@@H](C)C(=O)N[C@@H](Cc1c[nH]c2ccccc12)C(=O)N[C@@H](Cc1ccccc1)C(=O)N1CCC[C@H]1C(=O)N1CCC[C@H]1C(=O)N[C@@H](CCC(N)=O)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)O')
@@ -128,4 +125,4 @@ if combined_df.size > 0 and allowed:
 
 # Other misc things
 st.markdown("---")
-st.markdown("**Reference**: TODO")
+st.markdown("**Reference**: Imre, A., Balogh, B., & Mándity, I. (2024). GraphCPP: The new state-of-the-art method for cell-penetrating peptide prediction via graph neural networks. British Journal of Pharmacology, 1-15. https://doi.org/10. 1111/bph.17388")

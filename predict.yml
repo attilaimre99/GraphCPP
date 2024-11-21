@@ -1,0 +1,24 @@
+name: graphcpp_predict
+channels:
+  - pytorch
+  - conda-forge
+  - anaconda
+dependencies:
+  - python=3.9.16
+  - python_abi=3.9
+  - pytorch=1.13.1
+  - torchvision=0.14.1
+  - torchaudio=0.13.1
+  - cpuonly
+  - rdkit=2023.09.5
+  - deepchem=2.7.1
+  - lightning=2.0.1.post0
+  - scipy=1.10.1
+  - pip
+  - pip:
+      - streamlit==1.21.0
+      - Django==4.2.7
+      - --find-links https://data.pyg.org/whl/torch-1.13.0+cpu.html
+      - torch_geometric==2.3.0
+      - torch_scatter==2.1.1
+      - torch_sparse==0.6.17

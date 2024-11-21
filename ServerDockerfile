@@ -1,0 +1,22 @@
+FROM mambaorg/micromamba:1.5.6
+
+COPY --chown=$MAMBA_USER:$MAMBA_USER . /tmp/.
+
+USER root
+
+RUN apt update && apt install gcc libstdc++6 -y 
+
+USER $MAMBA_USER
+
+RUN micromamba install -y -n base -f /tmp/predict.yml && \
+    micromamba clean --all --yes
+
+ARG MAMBA_DOCKERFILE_ACTIVATE=1  # (otherwise python will not be found)
+
+EXPOSE 80
+
+WORKDIR /tmp/webserver
+
+# Run the Django server on port 80
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "python", "manage.py", "runserver", "0.0.0.0:80"]
+

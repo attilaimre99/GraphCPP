@@ -1,4 +1,4 @@
-# 5-fold Cross Validation of best trained model
+# 5-fold Cross Validation
 
 # Based on: https://gist.github.com/ashleve/ac511f08c0d29e74566900fd3efbb3ec
 
@@ -89,17 +89,3 @@ for k in range(nums_folds):
 
 print("Finished, results:")
 print(results)
-
-# Results:
-# [
-#     {'val_accuracy': 0.8748914003372192, 'val_mcc': 0.749786376953125, 'val_auc': 0.9437590837478638
-#     },
-#     {'val_accuracy': 0.9009556770324707, 'val_mcc': 0.8019294142723083, 'val_auc': 0.959951639175415
-#     },
-#     {'val_accuracy': 0.8600000143051147, 'val_mcc': 0.7223821878433228, 'val_auc': 0.9445796012878418
-#     },
-#     {'val_accuracy': 0.7408695816993713, 'val_mcc': 0.5168282389640808, 'val_auc': 0.9048346281051636
-#     },
-#     {'val_accuracy': 0.8756521940231323, 'val_mcc': 0.751883864402771, 'val_auc': 0.9502543210983276
-#     }
-# ]

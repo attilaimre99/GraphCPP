@@ -58,6 +58,7 @@ class MLP(torch.nn.Module):
     def __init__(self, dim_in, dim_out, bias=True, dim_inner=None, num_layers=2, **kwargs):
         super(MLP, self).__init__()
         dim_inner = dim_in if dim_inner is None else dim_inner
+        self.dim_in = dim_in
         layers = []
         if num_layers > 1:
             layers.append(GeneralMultiLayer('linear', num_layers - 1, dim_in, dim_inner, dim_inner, final_act=True, **kwargs))
@@ -67,18 +68,23 @@ class MLP(torch.nn.Module):
         self.model = Sequential(*layers)
 
     def forward(self, batch):
-        # import operator
-        # pre_layer = operator.attrgetter('0')
-        # final_layer = operator.attrgetter('1')
-        
-        # embedding = pre_layer(self.model)(batch)
-        # batch = final_layer(self.model)(embedding)
-        if isinstance(batch, torch.Tensor):
-            batch = self.model(batch)
+        print(self.model)
+
+        if self.dim_in > 2000:
+            if isinstance(batch, torch.Tensor):
+                batch = self.model(batch)
+            else:
+                batch.x = self.model(batch.x)
+            return batch
+            
         else:
-            batch.x = self.model(batch.x)
-        # return batch, embedding
-        return batch
+            embedding = batch
+
+            if isinstance(batch, torch.Tensor):
+                batch = self.model(batch)
+            else:
+                batch.x = self.model(batch.x)
+            return batch, embedding
     
 class GNNStackStage(torch.nn.Module):
     def __init__(self, dim_in, dim_out, num_layers, stage_type, layer_type, **kwargs):
@@ -124,11 +130,11 @@ class GNNGraphHead(torch.nn.Module):
             fp = self.fingerprint(batch.fp)
             graph_emb = torch.cat([graph_emb, fp], dim=1)
 
-        # graph_emb, inbetween_embedding = self.layer_post_mp(graph_emb)
-        graph_emb = self.layer_post_mp(graph_emb)
+        graph_emb, inbetween_embedding = self.layer_post_mp(graph_emb)
+        # graph_emb = self.layer_post_mp(graph_emb)
         pred, label = graph_emb, batch.y
-        # return pred, label, inbetween_embedding for tsne
-        return pred, label
+        return pred, label, inbetween_embedding # for tsne
+        # return pred, label
 
 # GENERIC LAYERS
 
@@ -243,11 +249,8 @@ class GCN(torch.nn.Module):
     def __init__(self, layers_pre_mp, mp_layers, layers_post_mp, hidden_channels, stage_type, **kwargs):
         super(GCN, self).__init__()
 
-        if layers_pre_mp > 0:
-            self.pre_mp = GeneralMultiLayer(name='linear', num_layers=layers_pre_mp, dim_in=32, dim_out=hidden_channels, dim_inner=hidden_channels, final_act=True, **kwargs)
-        if mp_layers > 0:
-            self.mp = GNNStackStage(dim_in=hidden_channels, dim_out=hidden_channels, num_layers=mp_layers, stage_type=stage_type, **kwargs)
-
+        self.pre_mp = GeneralMultiLayer(name='linear', num_layers=layers_pre_mp, dim_in=32, dim_out=hidden_channels, dim_inner=hidden_channels, final_act=True, **kwargs)
+        self.mp = GNNStackStage(dim_in=hidden_channels, dim_out=hidden_channels, num_layers=mp_layers, stage_type=stage_type, **kwargs)
         self.post_mp = GNNGraphHead(hidden_channels, 1, layers_post_mp, **kwargs)
 
         self.apply(init_weights)

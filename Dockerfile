@@ -2,8 +2,8 @@ FROM mambaorg/micromamba:1.4.5
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER . /tmp/.
 
-RUN micromamba install -y -n base -f /tmp/cpu.yml && \
-    micromamba clean --all --yes
+RUN micromamba install -y -n base -f /tmp/predict.yml && \
+    micromamba clean -afy
 
 ARG MAMBA_DOCKERFILE_ACTIVATE=1  # (otherwise python will not be found)
 
